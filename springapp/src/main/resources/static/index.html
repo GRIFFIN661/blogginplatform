@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blogging Platform - Home</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Blogging Platform</h1>
+    <nav>
+      <a href="/login.html">Login</a>
+      <a href="/signup.html">Sign Up</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Welcome to the Blogging Platform</h2>
+      <p>Read, write and share your thoughts.</p>
+      <div class="actions">
+        <a class="btn" href="/signup.html">Get Started</a>
+        <a class="btn outline" href="/login.html">Login</a>
+      </div>
+    </section>
+
+    <section class="features">
+      <h3>Available APIs</h3>
+      <ul>
+        <li>GET /api/blogs — list blogs</li>
+        <li>GET /api/blogs/{id} — get a single blog</li>
+        <li>POST /api/blogs — create a blog</li>
+        <li>PUT /api/blogs/{id} — update a blog</li>
+        <li>DELETE /api/blogs/{id} — delete a blog</li>
+      </ul>
+      <p class="note">This is a static UI for demo. It doesn't connect to the backend yet.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Blogging Platform</p>
+  </footer>
+</body>
+</html>
