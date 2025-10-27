@@ -41,8 +41,10 @@ export default function ContentDashboard({ user, onNavigate }) {
   const fetchUserContent = async () => {
     setLoading(true);
     try {
-      // For now, get all blogs since getUserBlogs might not be working
+      console.log('Fetching all blogs...');
       const allBlogs = await blogService.getAllBlogs();
+      console.log('Received blogs:', allBlogs?.length || 0);
+      console.log('Blog details:', allBlogs?.map(blog => ({ id: blog.id, title: blog.title, published: blog.published })));
       setBlogs(Array.isArray(allBlogs) ? allBlogs : []);
     } catch (error) {
       console.error('Error fetching user content:', error);
@@ -63,6 +65,11 @@ export default function ContentDashboard({ user, onNavigate }) {
   };
 
   const handleDeleteBlog = async (blogId) => {
+    // Find the blog to get its details
+    const blogToDelete = blogs.find(blog => blog.id === blogId);
+    console.log('Blog to delete:', blogToDelete);
+    console.log('Blog published status:', blogToDelete?.published);
+    
     if (window.confirm('Are you sure you want to delete this blog? This action cannot be undone.')) {
       try {
         console.log('Attempting to delete blog with ID:', blogId);
@@ -78,12 +85,21 @@ export default function ContentDashboard({ user, onNavigate }) {
         console.log('Delete response status:', response.status);
         console.log('Delete response ok:', response.ok);
         
-        if (response.ok) {
+        if (response.ok || response.status === 204) {
           console.log('Blog deleted successfully');
           // Immediately remove from local state for instant feedback
-          setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== blogId));
-          // Also refresh from server
-          fetchUserContent();
+          setBlogs(prevBlogs => {
+            const updatedBlogs = prevBlogs.filter(blog => blog.id !== blogId);
+            console.log('Updated blogs after deletion:', updatedBlogs.length);
+            return updatedBlogs;
+          });
+          
+          // Wait a moment then refresh from server to ensure consistency
+          setTimeout(() => {
+            console.log('Refreshing blogs from server...');
+            fetchUserContent();
+          }, 500);
+          
           alert('Blog deleted successfully!');
         } else {
           const errorText = await response.text();
