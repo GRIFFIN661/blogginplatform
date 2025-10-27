@@ -65,10 +65,20 @@ public class BlogController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBlog(@PathVariable Long id) {
-        boolean deleted = blogService.deleteBlog(id);
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
+        try {
+            System.out.println("Received DELETE request for blog ID: " + id);
+            boolean deleted = blogService.deleteBlog(id);
+            System.out.println("Delete operation result: " + deleted);
+            if (!deleted) {
+                System.out.println("Blog not found or could not be deleted");
+                return ResponseEntity.notFound().build();
+            }
+            System.out.println("Blog deleted successfully");
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            System.err.println("Error in deleteBlog endpoint: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
         }
-        return ResponseEntity.noContent().build();
     }
 }

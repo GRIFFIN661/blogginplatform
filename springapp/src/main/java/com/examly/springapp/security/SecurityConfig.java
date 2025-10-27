@@ -42,7 +42,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**", "/api/users/**", "/api/integrations/**", "/api/workflows/**", "/api/analytics/**", "/api/notifications/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .antMatchers("/api/auth/**", "/api/users/**", "/api/integrations/**", "/api/workflows/**", "/api/analytics/**", "/api/notifications/**", "/api/blogs/**", "/api/comments/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

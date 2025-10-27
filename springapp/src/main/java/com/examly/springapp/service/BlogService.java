@@ -89,11 +89,25 @@ public class BlogService {
     }
 
     public boolean deleteBlog(Long id) {
-        if (blogRepository.existsById(id)) {
-            blogRepository.deleteById(id);
-            return true;
+        try {
+            System.out.println("BlogService: Checking if blog exists with ID: " + id);
+            boolean exists = blogRepository.existsById(id);
+            System.out.println("BlogService: Blog exists: " + exists);
+            
+            if (exists) {
+                System.out.println("BlogService: Deleting blog with ID: " + id);
+                blogRepository.deleteById(id);
+                System.out.println("BlogService: Blog deleted successfully");
+                return true;
+            } else {
+                System.out.println("BlogService: Blog not found with ID: " + id);
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("BlogService: Error deleting blog: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
     
     public long getTotalBlogCount() {
