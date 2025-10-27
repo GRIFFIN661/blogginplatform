@@ -63,12 +63,24 @@ export default function ContentDashboard({ user, onNavigate }) {
   };
 
   const handleDeleteBlog = async (blogId) => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
+    if (window.confirm('Are you sure you want to delete this blog? This action cannot be undone.')) {
       try {
-        await blogService.deleteBlog(blogId);
-        fetchUserContent();
+        console.log('Attempting to delete blog with ID:', blogId);
+        const success = await blogService.deleteBlog(blogId);
+        if (success) {
+          console.log('Blog deleted successfully');
+          // Immediately remove from local state for instant feedback
+          setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== blogId));
+          // Also refresh from server
+          fetchUserContent();
+          alert('Blog deleted successfully!');
+        } else {
+          console.error('Failed to delete blog');
+          alert('Failed to delete blog. Please try again.');
+        }
       } catch (error) {
         console.error('Error deleting blog:', error);
+        alert('Error deleting blog: ' + error.message);
       }
     }
   };

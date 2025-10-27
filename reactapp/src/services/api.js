@@ -1,9 +1,21 @@
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'http://localhost:8080' : '';
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 // Generic API methods
 export const get = async (url) => {
   try {
-    const response = await fetch(`${API_BASE_URL}${url}`);
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      headers: getAuthHeaders()
+    });
     return await response.json();
   } catch (error) {
     console.error('API GET error:', error);
@@ -15,7 +27,7 @@ export const post = async (url, data) => {
   try {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
     return await response.json();
@@ -28,44 +40,53 @@ export const post = async (url, data) => {
 const api = {
   // Blog endpoints
   blogs: {
-    getAll: () => fetch(`${API_BASE_URL}/api/blogs`),
-    getById: (id) => fetch(`${API_BASE_URL}/api/blogs/${id}`),
+    getAll: () => fetch(`${API_BASE_URL}/api/blogs`, {
+      headers: getAuthHeaders()
+    }),
+    getById: (id) => fetch(`${API_BASE_URL}/api/blogs/${id}`, {
+      headers: getAuthHeaders()
+    }),
     create: (blog) => fetch(`${API_BASE_URL}/api/blogs`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(blog)
     }),
     update: (id, blog) => fetch(`${API_BASE_URL}/api/blogs/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(blog)
     }),
     delete: (id) => fetch(`${API_BASE_URL}/api/blogs/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     })
   },
 
   // Comment endpoints
   comments: {
-    getByBlogId: (blogId) => fetch(`${API_BASE_URL}/api/comments/${blogId}`),
+    getByBlogId: (blogId) => fetch(`${API_BASE_URL}/api/comments/${blogId}`, {
+      headers: getAuthHeaders()
+    }),
     create: (blogId, text) => fetch(`${API_BASE_URL}/api/comments/${blogId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ text })
     })
   },
 
   // Report endpoints
   reports: {
-    getAll: () => fetch(`${API_BASE_URL}/api/reports`),
+    getAll: () => fetch(`${API_BASE_URL}/api/reports`, {
+      headers: getAuthHeaders()
+    }),
     create: (report) => fetch(`${API_BASE_URL}/api/reports`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(report)
     })
   },
 
-  // Auth endpoints
+  // Auth endpoints (these don't need auth headers)
   auth: {
     login: (credentials) => fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',

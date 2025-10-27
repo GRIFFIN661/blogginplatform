@@ -67,15 +67,23 @@ export const updateBlog = async (id, blog) => {
 
 export const deleteBlog = async (id) => {
   try {
+    console.log('Deleting blog with ID:', id);
     const response = await api.blogs.delete(id);
+    console.log('Delete response status:', response.status);
+    
     if (response.ok) {
+      console.log('Blog deleted successfully, emitting event');
       blogEvents.emit(BLOG_EVENTS.BLOG_DELETED, { id });
       return true;
+    } else {
+      console.error('Delete failed with status:', response.status);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      return false;
     }
-    return false;
   } catch (error) {
     console.error('Error deleting blog:', error);
-    return false;
+    throw error;
   }
 };
 
