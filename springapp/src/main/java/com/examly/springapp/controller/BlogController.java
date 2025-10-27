@@ -5,14 +5,13 @@ import com.examly.springapp.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
 @RestController
-
-
 @RequestMapping("/api/blogs")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class BlogController {
     
     @Autowired
@@ -64,19 +63,25 @@ public class BlogController {
     }
 
     @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<Void> deleteBlog(@PathVariable Long id) {
         try {
-            System.out.println("Received DELETE request for blog ID: " + id);
+            System.out.println("=== DELETE REQUEST RECEIVED ===");
+            System.out.println("Blog ID to delete: " + id);
+            System.out.println("ID type: " + id.getClass().getSimpleName());
+            
             boolean deleted = blogService.deleteBlog(id);
             System.out.println("Delete operation result: " + deleted);
+            
             if (!deleted) {
                 System.out.println("Blog not found or could not be deleted");
                 return ResponseEntity.notFound().build();
             }
-            System.out.println("Blog deleted successfully");
+            
+            System.out.println("Blog deleted successfully - returning 204");
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            System.err.println("Error in deleteBlog endpoint: " + e.getMessage());
+            System.err.println("ERROR in deleteBlog endpoint: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }

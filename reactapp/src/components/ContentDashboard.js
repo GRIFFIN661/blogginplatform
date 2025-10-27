@@ -66,8 +66,19 @@ export default function ContentDashboard({ user, onNavigate }) {
     if (window.confirm('Are you sure you want to delete this blog? This action cannot be undone.')) {
       try {
         console.log('Attempting to delete blog with ID:', blogId);
-        const success = await blogService.deleteBlog(blogId);
-        if (success) {
+        
+        // Direct fetch call to bypass any API wrapper issues
+        const response = await fetch(`/api/blogs/${blogId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('Delete response status:', response.status);
+        console.log('Delete response ok:', response.ok);
+        
+        if (response.ok) {
           console.log('Blog deleted successfully');
           // Immediately remove from local state for instant feedback
           setBlogs(prevBlogs => prevBlogs.filter(blog => blog.id !== blogId));
@@ -75,8 +86,9 @@ export default function ContentDashboard({ user, onNavigate }) {
           fetchUserContent();
           alert('Blog deleted successfully!');
         } else {
-          console.error('Failed to delete blog');
-          alert('Failed to delete blog. Please try again.');
+          const errorText = await response.text();
+          console.error('Delete failed with status:', response.status, 'Error:', errorText);
+          alert(`Failed to delete blog. Status: ${response.status}`);
         }
       } catch (error) {
         console.error('Error deleting blog:', error);
