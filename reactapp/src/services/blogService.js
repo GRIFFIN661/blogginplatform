@@ -20,7 +20,13 @@ export const getAllBlogs = async () => {
 export const getBlogById = async (id) => {
   try {
     const response = await api.blogs.getById(id);
-    return await response.json();
+    if (response.ok) {
+      const blog = await response.json();
+      return blog || null;
+    } else {
+      console.error('Failed to fetch blog:', response.status);
+      return null;
+    }
   } catch (error) {
     console.error('Error fetching blog:', error);
     return null;
@@ -84,7 +90,19 @@ export const getUserBlogs = async (userId) => {
 };
 
 export const getBlog = async (id) => {
-  return getBlogById(id);
+  const blog = await getBlogById(id);
+  if (!blog) {
+    return {
+      title: '',
+      content: '',
+      tags: '',
+      category: '',
+      seoTitle: '',
+      seoDescription: '',
+      published: false
+    };
+  }
+  return blog;
 };
 
 export const incrementView = async (id) => {

@@ -14,6 +14,7 @@ export default function ContentEditor({ user, onSave, onCancel }) {
     published: false
   });
   const [loading, setLoading] = useState(false);
+  const [fetchingBlog, setFetchingBlog] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [mediaFiles, setMediaFiles] = useState([]);
 
@@ -24,11 +25,34 @@ export default function ContentEditor({ user, onSave, onCancel }) {
   }, [blogId]);
 
   const fetchBlog = async () => {
+    setFetchingBlog(true);
     try {
       const blogData = await blogService.getBlog(blogId);
-      setBlog(blogData);
+      if (blogData) {
+        setBlog({
+          title: blogData.title || '',
+          content: blogData.content || '',
+          tags: blogData.tags || '',
+          category: blogData.category || '',
+          seoTitle: blogData.seoTitle || '',
+          seoDescription: blogData.seoDescription || '',
+          published: blogData.published || false
+        });
+      }
     } catch (error) {
       console.error('Error fetching blog:', error);
+      // Set default values on error
+      setBlog({
+        title: '',
+        content: '',
+        tags: '',
+        category: '',
+        seoTitle: '',
+        seoDescription: '',
+        published: false
+      });
+    } finally {
+      setFetchingBlog(false);
     }
   };
 
@@ -135,6 +159,16 @@ export default function ContentEditor({ user, onSave, onCancel }) {
     setBlog({ ...blog, content: newContent });
   };
 
+  if (fetchingBlog) {
+    return (
+      <div className="content-editor">
+        <div className="loading">
+          🔄 Loading blog data...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="content-editor">
       <div className="editor-header">
@@ -182,7 +216,7 @@ export default function ContentEditor({ user, onSave, onCancel }) {
                 onChange={(e) => setBlog({ ...blog, title: e.target.value })}
                 className="title-input"
               />
-              <div className="title-counter">{blog.title.length}/100</div>
+              <div className="title-counter">{(blog.title || '').length}/100</div>
             </div>
 
             <div className="content-section">
@@ -197,7 +231,7 @@ export default function ContentEditor({ user, onSave, onCancel }) {
                   <button onClick={() => insertFormatting('code')} title="Code">{'</>'}</button>
                   <button onClick={() => document.getElementById('media-upload').click()} title="Upload Image">🖼️</button>
                 </div>
-                <div className="word-count">{blog.content.split(' ').filter(w => w).length} words</div>
+                <div className="word-count">{(blog.content || '').split(' ').filter(w => w).length} words</div>
               </div>
               
               <textarea
@@ -231,8 +265,8 @@ export default function ContentEditor({ user, onSave, onCancel }) {
               <input
                 type="text"
                 placeholder="🏷️ Add tags (comma separated)"
-                value={Array.isArray(blog.tags) ? blog.tags.join(', ') : blog.tags || ''}
-                onChange={(e) => setBlog({ ...blog, tags: e.target.value.split(',').map(tag => tag.trim()) })}
+                value={Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags || '')}
+                onChange={(e) => setBlog({ ...blog, tags: e.target.value })}
                 className="tags-input"
               />
             </div>
@@ -254,7 +288,7 @@ export default function ContentEditor({ user, onSave, onCancel }) {
                 rows={3}
                 className="seo-textarea"
               />
-              <div className="seo-counter">{(blog.seoDescription || '').length}/160</div>
+              <div className="seo-counter">{((blog.seoDescription || '').length)}/160</div>
             </div>
 
             <div className="editor-section">
@@ -294,17 +328,17 @@ export default function ContentEditor({ user, onSave, onCancel }) {
               <span className="meta-item">👤 {user?.username || 'Anonymous'}</span>
               <span className="meta-item">📅 {new Date().toLocaleDateString()}</span>
             </div>
-            {blog.tags && blog.tags.length > 0 && (
+            {blog.tags && (blog.tags.length > 0 || (typeof blog.tags === 'string' && blog.tags.trim())) && (
               <div className="preview-tags">
-                {(Array.isArray(blog.tags) ? blog.tags : blog.tags.split(',')).map((tag, index) => (
+                {(Array.isArray(blog.tags) ? blog.tags : (blog.tags || '').split(',')).filter(tag => tag.trim()).map((tag, index) => (
                   <span key={index} className="preview-tag">🏷️ {tag.trim()}</span>
                 ))}
               </div>
             )}
           </div>
           <div className="preview-body">
-            {blog.content ? (
-              blog.content.split('\n').map((paragraph, index) => (
+            {blog.content && blog.content.trim() ? (
+              (blog.content || '').split('\n').map((paragraph, index) => (
                 <p key={index} className="preview-paragraph">{paragraph}</p>
               ))
             ) : (
